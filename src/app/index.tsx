@@ -1,5 +1,14 @@
 import { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  Alert,
+  FlatList,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
 import ItemCard from '@/components/ItemCard';
 import { Item } from '@/types';
@@ -35,61 +44,114 @@ export default function Index() {
     setPlace('');
   }
 
+  function handleLongPress(item: Item) {
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm(`Remove "${item.title}" from reported items?`);
+      if (confirmed) {
+        setItems((prev) => prev.filter((i) => i.id !== item.id));
+      }
+    } else {
+      Alert.alert(
+        'Remove Item',
+        `Do you want to remove "${item.title}"?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Remove',
+            style: 'destructive',
+            onPress: () => setItems((prev) => prev.filter((i) => i.id !== item.id)),
+          },
+        ]
+      );
+    }
+  }
+
   return (
-    <View style={styles.screen}>
-      <Text style={styles.count}>📦 {items.length} items reported</Text>
+    <View style={styles.container}>
+      <View style={styles.content}>
+        <View style={styles.headerRow}>
+          <Text style={styles.count}>📦 {items.length} items reported</Text>
+          {items.length > 0 && (
+            <Text style={styles.hint}>Long-press an item to remove</Text>
+          )}
+        </View>
 
-      <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          placeholder="What did you find?"
-          placeholderTextColor="#94a3b8"
-          value={title}
-          onChangeText={setTitle}
+        <View style={styles.form}>
+          <TextInput
+            style={styles.input}
+            placeholder="What did you find?"
+            placeholderTextColor="#94a3b8"
+            value={title}
+            onChangeText={setTitle}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Where?"
+            placeholderTextColor="#94a3b8"
+            value={place}
+            onChangeText={setPlace}
+          />
+          <Pressable
+            style={[styles.button, !canAdd && styles.buttonDisabled]}
+            onPress={addItem}
+            disabled={!canAdd}
+          >
+            <Text style={styles.buttonText}>+ Add item</Text>
+          </Pressable>
+        </View>
+
+        <FlatList
+          data={items}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <Pressable
+              onLongPress={() => handleLongPress(item)}
+              style={({ pressed }) => pressed && styles.pressedCard}
+            >
+              <ItemCard title={item.title} place={item.place} />
+            </Pressable>
+          )}
+          ItemSeparatorComponent={Separator}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyTitle}>Nothing reported yet</Text>
+              <Text style={styles.emptySubtitle}>Found something? Add it using the form above.</Text>
+            </View>
+          }
+          contentContainerStyle={styles.listContent}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Where?"
-          placeholderTextColor="#94a3b8"
-          value={place}
-          onChangeText={setPlace}
-        />
-        <Pressable
-          style={[styles.button, !canAdd && styles.buttonDisabled]}
-          onPress={addItem}
-          disabled={!canAdd}
-        >
-          <Text style={styles.buttonText}>+ Add item</Text>
-        </Pressable>
       </View>
-
-      <FlatList
-        data={items}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <ItemCard title={item.title} place={item.place} />}
-        ItemSeparatorComponent={Separator}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyTitle}>Nothing reported yet</Text>
-            <Text style={styles.emptySubtitle}>Found something? Add it using the form above.</Text>
-          </View>
-        }
-      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  container: {
     flex: 1,
-    padding: 18,
     backgroundColor: '#f8fafc',
+    alignItems: 'center',
+  },
+  content: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 600,
+    padding: 18,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 14,
   },
   count: {
     color: '#334155',
     fontSize: 15,
     fontWeight: '700',
-    marginBottom: 14,
+  },
+  hint: {
+    color: '#94a3b8',
+    fontSize: 12,
+    fontStyle: 'italic',
   },
   form: {
     gap: 10,
@@ -138,6 +200,13 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: 12,
+  },
+  pressedCard: {
+    opacity: 0.75,
+    transform: [{ scale: 0.99 }],
+  },
+  listContent: {
+    paddingBottom: 24,
   },
   emptyContainer: {
     alignItems: 'center',
