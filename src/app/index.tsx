@@ -37,18 +37,20 @@ export default function Index() {
 
   return (
     <View style={styles.screen}>
-      <Text style={styles.count}>{items.length} items reported</Text>
+      <Text style={styles.count}>📦 {items.length} items reported</Text>
 
       <View style={styles.form}>
         <TextInput
           style={styles.input}
           placeholder="What did you find?"
+          placeholderTextColor="#94a3b8"
           value={title}
           onChangeText={setTitle}
         />
         <TextInput
           style={styles.input}
           placeholder="Where?"
+          placeholderTextColor="#94a3b8"
           value={place}
           onChangeText={setPlace}
         />
@@ -57,7 +59,7 @@ export default function Index() {
           onPress={addItem}
           disabled={!canAdd}
         >
-          <Text style={styles.buttonText}>Add item</Text>
+          <Text style={styles.buttonText}>+ Add item</Text>
         </Pressable>
       </View>
 
@@ -66,7 +68,12 @@ export default function Index() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <ItemCard title={item.title} place={item.place} />}
         ItemSeparatorComponent={Separator}
-        ListEmptyComponent={<Text>Nothing reported yet.</Text>}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyTitle}>Nothing reported yet</Text>
+            <Text style={styles.emptySubtitle}>Found something? Add it using the form above.</Text>
+          </View>
+        }
       />
     </View>
   );
@@ -75,40 +82,75 @@ export default function Index() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#f3f4f6',
+    padding: 18,
+    backgroundColor: '#f8fafc',
   },
   count: {
-    color: '#6b7280',
-    marginBottom: 12,
+    color: '#334155',
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: 14,
   },
   form: {
-    gap: 8,
-    marginBottom: 16,
+    gap: 10,
+    marginBottom: 20,
+    backgroundColor: '#ffffff',
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
   input: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#f1f5f9',
     borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
+    borderColor: '#cbd5e1',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: '#0f172a',
   },
   button: {
-    backgroundColor: '#2563eb',
-    borderRadius: 8,
-    padding: 14,
+    backgroundColor: '#4f46e5',
+    borderRadius: 10,
+    paddingVertical: 13,
     alignItems: 'center',
+    shadowColor: '#4f46e5',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 3,
   },
   buttonDisabled: {
-    opacity: 0.4,
+    opacity: 0.45,
+    elevation: 0,
+    shadowOpacity: 0,
   },
   buttonText: {
     color: '#ffffff',
-    fontWeight: '600',
+    fontWeight: '700',
     fontSize: 16,
   },
   separator: {
-    height: 10,
+    height: 12,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    paddingVertical: 36,
+  },
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#64748b',
+    marginBottom: 4,
+  },
+  emptySubtitle: {
+    fontSize: 13,
+    color: '#94a3b8',
   },
 });
